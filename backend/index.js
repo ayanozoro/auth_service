@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import connectdb from "./config/db.js";
+import {createClient} from "redis";
 
 
 
@@ -12,7 +13,23 @@ const app = express();
 
 app.use(express.json());
 app.use("/api", routes);
+
 await connectdb();
+const redis_url = process.env.redis_url;
+
+if(!redis_url) {
+    console.log("redis url is not defined");
+    process.exit(1);
+}
+export const redisClient = createClient({
+    url: redis_url
+});
+await redisClient.connect().then(()=>{
+    console.log("redis connected");
+}).catch((err)=>{
+    console.log("redis connection failed", err);
+    process.exit(1);
+})
 
 const port = process.env.port || 3000;
 

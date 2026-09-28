@@ -7,6 +7,11 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import {sendMail} from "../config/sendMail.js";
 import { getVerifyEmailHtml, getOpt } from "../config/html.js";
+import {
+    genetateToken,
+    verifyRefreshToken,
+    getAccessToken
+} from "../config/generateToken.js";
 
 export const registerUser = tryCatch(async (req, res) => {
     const sanitized = sanitize(req.body);
@@ -216,5 +221,34 @@ export const verifyOtp = tryCatch(async (req, res) => {
         });
     }
 
-    
+    const tokens = await genetateToken(user._id, res);
+
+    res.status(200).json({
+        message: `Welcome back, ${user.name}!`,
+        user    
+    });
+})
+
+export const refreshToken = tryCatch(async (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    console.log("refreshToken", refreshToken);
+    if (!refreshToken) {
+        return res.status(401).json({
+            message: "Refresh token is required"
+        });
+    }
+
+    const decoded = await verifyRefreshToken(refreshToken);   
+
+    if (!decoded) {
+        return res.status(403).json({
+            message: "Invalid or expired refresh token"
+        });
+    }
+
+    getAccessToken(decoded.id, res);
+
+    res.status(200).json({
+        message: "Access token refreshed successfully"
+    });
 })

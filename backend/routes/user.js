@@ -1,5 +1,5 @@
 import express from "express";
-import { registerUser , verifyUser, loginUser, verifyOtp, refreshToken } from "../controllers/user.js";
+import { registerUser , verifyUser, loginUser, verifyOtp, refreshToken, logoutUser } from "../controllers/user.js";
 import { isAuth, myprofile } from "../middelware/isAuth.js";
 
 const routes = express.Router();
@@ -10,5 +10,6 @@ routes.post("/verify/:token", verifyUser);
 routes.post("/verify-otp", verifyOtp);
 routes.get("/myprofile", isAuth, myprofile);
 routes.get("/refresh-token", refreshToken);
+routes.get("/logout", isAuth, logoutUser);
 
 export default routes;

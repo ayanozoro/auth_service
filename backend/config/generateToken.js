@@ -52,3 +52,7 @@ export const getAccessToken = async(id,res) => {
         maxAge: 5 * 60 * 1000 // 5 minutes
     });
 }
+
+export const revokeRefreshToken = async (id) => {
+    await redisClient.del(`refresh:${id}`);
+}

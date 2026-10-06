@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { redisClient } from "../index.js";
+import { generateCSRFToken, revokeCSRFToken } from './csrfMiddelware.js';
 
 export const genetateToken = async(id,res) => {
     const accessToken = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: '5m'});
@@ -22,6 +23,8 @@ export const genetateToken = async(id,res) => {
         sameSite: 'strict',
         maxAge: 24 * 60 * 60 * 1000 // 1 day
     });
+
+    const csrfToken = await generateCSRFToken(id, res);
 
     return { accessToken, refereshToken };
 }
@@ -55,4 +58,5 @@ export const getAccessToken = async(id,res) => {
 
 export const revokeRefreshToken = async (id) => {
     await redisClient.del(`refresh:${id}`);
+    await revokeCSRFToken(id); // Revoke CSRF token when refresh token is revoked
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -180,11 +180,31 @@ export default function Login() {
             </button>
           </form>
 
+          <a
+            href="http://localhost:4000/api/auth/google"
+            className="btn-primary"
+            style={{ display: "flex", justifyContent: "center", marginTop: "16px", textDecoration: "none" }}
+          >
+            Continue with Google
+          </a>
+
           <p className="form-bottom-link">
             Don't have an account yet? <Link to="/register">Create an account</Link>
           </p>
         </div>
       </main>
+      <a
+  href="http://localhost:4000/api/auth/google"
+  className="btn-primary"
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    marginTop: "16px",
+    textDecoration: "none",
+  }}
+>
+  Continue with Google
+</a>
     </div>
   );
 }

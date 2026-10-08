@@ -20,17 +20,17 @@ export const generateCSRFToken = async (userId, res) => {
 
 export const verifyCSRFToken = async (req, res, next) => {
     try {
-        if (req.method === "GET") {
-            return next();
-        }
         const userId = req.user?._id || req.user?.id;
+        if (!userId && req.cookies?.refreshToken) {
+            const decoded = await verifyRefreshToken(req.cookies.refreshToken);
+            userId = decoded?.id;
+        }
         if (!userId) {
-            return res.status(401).json({
-                message: "Unauthorized"
-            });
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
-        const clientCsrfToken = req.headers["x-csrf-token"] || req.headers["csrf-token"];
+
+        const clientCsrfToken = req.headers["x-csrf-token"] || req.headers["csrf-token"] || req.headers["csrftoken"];
         if (!clientCsrfToken) {
             return res.status(403).json({
                 message: "CSRF token is missing"
@@ -59,7 +59,21 @@ export const revokeCSRFToken = async (userId) => {
     await redisClient.del(csrfKey);
 };
 
-export const refreshCSRFToken = async (userId, res) => {
-    await revokeCSRFToken(userId);
-    await generateCSRFToken(userId, res);
+export const refreshCSRFToken = async (req, res) => {
+    try {
+        const userId = req.user?._id || req.user?.id;
+        if (!userId) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        await revokeCSRFToken(userId);
+        const csrfToken = await generateCSRFToken(userId, res);
+        return res.status(200).json({
+            message: "CSRF token refreshed successfully",
+            csrfToken
+        });
+    } catch (err) {
+        console.error("Error refreshing CSRF token:", err);
+        return res.status(500).json({ message: "Failed to refresh CSRF token" });
+    }
 };

@@ -14,13 +14,26 @@ export class ApiError extends Error {
 }
 
 /**
+ * Helper to read non-httpOnly csrfToken from document.cookie
+ */
+export function getCsrfToken() {
+  if (typeof document === "undefined") return null;
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("csrfToken="))
+    ?.split("=")[1];
+}
+
+/**
  * Core fetch wrapper with JSON serialization, cookie credentials, and retry on 401/403
  */
 export async function apiRequest(endpoint, options = {}, retryOnAuth = true) {
   const url = `${API_BASE}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const csrfToken = getCsrfToken();
   
   const headers = {
     "Content-Type": "application/json",
+    ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
     ...(options.headers || {}),
   };
 
@@ -139,9 +152,13 @@ export async function getMyProfile() {
  */
 export async function refreshToken() {
   try {
+    const csrf = getCsrfToken();
     const res = await fetch(`${API_BASE}/refresh-token`, {
       method: "GET",
       credentials: "include",
+      headers: {
+        ...(csrf ? { "x-csrf-token": csrf } : {}),
+      },
     });
     return res.ok;
   } catch {

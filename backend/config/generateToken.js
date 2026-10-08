@@ -2,10 +2,10 @@ import jwt from 'jsonwebtoken';
 import { redisClient } from "../index.js";
 import { generateCSRFToken, revokeCSRFToken } from './csrfMiddelware.js';
 
-export const genetateToken = async(id,res) => {
-    const accessToken = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: '5m'});
+export const genetateToken = async (id, res) => {
+    const accessToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
-    const refereshToken = jwt.sign({id}, process.env.refresh_token_secret, {expiresIn: '1d'});
+    const refereshToken = jwt.sign({ id }, process.env.refresh_token_secret, { expiresIn: '1d' });
 
     const storeRefereshToken = `refresh:${id}`;
     await redisClient.setEx(storeRefereshToken, 24 * 60 * 60, refereshToken); // EX: 1 day
@@ -14,7 +14,7 @@ export const genetateToken = async(id,res) => {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
-        maxAge: 5 * 60 * 1000 // 5 minutes
+        maxAge: 15 * 60 * 1000 // 15 minutes
     });
 
     res.cookie('refreshToken', refereshToken, {
@@ -45,14 +45,14 @@ export const verifyRefreshToken = async (refreshToken) => {
 }
 
 
-export const getAccessToken = async(id,res) => {
-    const accessToken = jwt.sign({id}, process.env.JWT_SECRET, {expiresIn: '5m'});
-    
+export const getAccessToken = async (id, res) => {
+    const accessToken = jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '15m' });
+
     res.cookie('accessToken', accessToken, {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
-        maxAge: 5 * 60 * 1000 // 5 minutes
+        maxAge: 15 * 60 * 1000 // 15 minutes
     });
 }
 

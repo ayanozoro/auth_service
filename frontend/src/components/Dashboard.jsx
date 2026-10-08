@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
@@ -11,11 +11,11 @@ import {
   CopyIcon,
   CheckIcon,
   RefreshIcon,
-  ServerIcon,
+  
   ClockIcon,
   KeyIcon,
   ZapIcon,
-  MailIcon,
+  
 } from "./Icons";
 
 export default function Dashboard({ defaultTab = "overview" }) {

@@ -1,1 +1,1 @@
-Auth Service full authenticated 
+Auth Service full authenticated application
